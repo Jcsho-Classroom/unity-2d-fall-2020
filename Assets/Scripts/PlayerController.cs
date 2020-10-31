@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public float speed = 2;
+    
     private Rigidbody2D _rb2d;
     private float _horizontal;
     private float _vertical;
@@ -31,6 +33,6 @@ public class PlayerController : MonoBehaviour
     {
         // move the player
         Vector2 velocity = new Vector2(x, y);
-        _rb2d.MovePosition(_rb2d.position + velocity * Time.fixedDeltaTime);
+        _rb2d.MovePosition(_rb2d.position + velocity * (speed * Time.fixedDeltaTime));
     }
 }
