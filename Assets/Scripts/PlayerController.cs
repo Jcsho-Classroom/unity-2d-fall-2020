@@ -9,11 +9,14 @@ public class PlayerController : MonoBehaviour
     [Range(1, 100)]
     public int maxHealth = 5;
     public int currentHealth;
+    public float damageCooldown = 3.0f;
 
     private Animator _animator;
     private Rigidbody2D _rb2d;
     private float _horizontal;
     private float _vertical;
+    private float _timer;
+    private bool isInvincible;
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +35,15 @@ public class PlayerController : MonoBehaviour
 
         _animator.SetFloat("Look X", _horizontal);
         _animator.SetFloat("Look Y", _vertical);
-        
+
+        if (isInvincible == true)
+        {
+            _timer = _timer - Time.deltaTime;
+            if (_timer < 0)
+            {
+                isInvincible = false;
+            }
+        }
     }
 
     void FixedUpdate()
@@ -50,6 +61,15 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeHealth(int amount)
     {
+        if (amount < 0)
+        {
+            if (isInvincible == true)
+            {
+                return;
+            }
+            isInvincible = true;
+            _timer = damageCooldown;
+        }
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
     }
 }
