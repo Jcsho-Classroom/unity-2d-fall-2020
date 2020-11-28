@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     public int maxHealth = 5;
     public int currentHealth;
     public float damageCooldown = 3.0f;
+    public GameObject projectilePrefab;
 
     private Animator _animator;
     private Rigidbody2D _rb2d;
@@ -17,6 +18,8 @@ public class PlayerController : MonoBehaviour
     private float _vertical;
     private float _timer;
     private bool isInvincible;
+
+    private Vector2 lookDirection = new Vector2(1, 0);
 
     // Start is called before the first frame update
     void Start()
@@ -33,8 +36,17 @@ public class PlayerController : MonoBehaviour
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
 
-        _animator.SetFloat("Look X", _horizontal);
-        _animator.SetFloat("Look Y", _vertical);
+        Vector2 move = new Vector2(_horizontal, _vertical);
+
+        if (!Mathf.Approximately(move.x, 0.0f) || !Mathf.Approximately(move.y, 0.0f))
+        {
+            lookDirection.Set(move.x, move.y);
+            lookDirection.Normalize();
+        }
+
+        _animator.SetFloat("Look X", lookDirection.x);
+        _animator.SetFloat("Look Y", lookDirection.y);
+        _animator.SetFloat("Speed", move.magnitude);
 
         if (isInvincible == true)
         {
@@ -44,19 +56,20 @@ public class PlayerController : MonoBehaviour
                 isInvincible = false;
             }
         }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Launch();
+        }
     }
 
     void FixedUpdate()
     {
-        Move(_horizontal, _vertical);
-    }
+        Vector2 position = _rb2d.position;
+        position.x = position.x + speed * _horizontal * Time.deltaTime;
+        position.y = position.y + speed * _vertical * Time.deltaTime;
 
-    public void Move(float x, float y)
-    {
-        // move the player
-        Vector2 velocity = new Vector2(x, y);
-        _animator.SetFloat("Speed", Math.Abs(velocity.x + velocity.y));
-        _rb2d.MovePosition(_rb2d.position + velocity * (speed * Time.fixedDeltaTime));
+        _rb2d.MovePosition(position);
     }
 
     public void ChangeHealth(int amount)
@@ -71,5 +84,13 @@ public class PlayerController : MonoBehaviour
             _timer = damageCooldown;
         }
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
+    }
+
+    public void Launch()
+    {
+        GameObject projectileObject = Instantiate(projectilePrefab, _rb2d.position + Vector2.up * 0.5f, Quaternion.identity);
+
+        Projectile projectile = projectileObject.GetComponent<Projectile>();
+        projectile.Launch(lookDirection, 300);
     }
 }
