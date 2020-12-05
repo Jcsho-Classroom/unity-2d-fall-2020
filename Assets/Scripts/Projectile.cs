@@ -11,6 +11,14 @@ public class Projectile : MonoBehaviour
         _rb2d = GetComponent<Rigidbody2D>();
     }
 
+    private void Update()
+    {
+        if (transform.position.magnitude > 1000f)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public void Launch(Vector2 direction, float force)
     {
         _rb2d.AddForce(direction * force);
@@ -18,7 +26,13 @@ public class Projectile : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Projectile hit " + collision.gameObject);
+        EnemyController enemy = collision.collider.GetComponent<EnemyController>();
+
+        if (enemy != null)
+        {
+            enemy.Fix();
+        }
+
         Destroy(gameObject);
     }
 }
