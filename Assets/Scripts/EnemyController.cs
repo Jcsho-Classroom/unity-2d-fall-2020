@@ -78,5 +78,6 @@ public class EnemyController : MonoBehaviour
     {
         broken = true;
         _rb2d.simulated = false;
+        _animator.SetTrigger("");
     }
 }

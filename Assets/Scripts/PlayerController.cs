@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public int currentHealth;
     public float damageCooldown = 3.0f;
     public GameObject projectilePrefab;
+    public UIHealthBar uiHealthBar;
 
     private Animator _animator;
     private Rigidbody2D _rb2d;
