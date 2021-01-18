@@ -62,6 +62,11 @@ public class PlayerController : MonoBehaviour
         {
             Launch();
         }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up);
+        }
     }
 
     void FixedUpdate()
@@ -85,6 +90,7 @@ public class PlayerController : MonoBehaviour
             _timer = damageCooldown;
         }
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
+        uiHealthBar.SetValue((float)currentHealth / (float)maxHealth);
     }
 
     public void Launch()
