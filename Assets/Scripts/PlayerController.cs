@@ -33,6 +33,26 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Control();
+        Invincible();
+        Fire();
+        Interact();
+    }
+
+    void FixedUpdate()
+    {
+        Vector2 position = _rb2d.position;
+        position.x = position.x + speed * _horizontal * Time.deltaTime;
+        position.y = position.y + speed * _vertical * Time.deltaTime;
+
+        _rb2d.MovePosition(position);
+    }
+
+    /// <summary>
+    /// Handles input from player to control the character
+    /// </summary>
+    private void Control()
+    {
         // get input
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
@@ -48,7 +68,34 @@ public class PlayerController : MonoBehaviour
         _animator.SetFloat("Look X", lookDirection.x);
         _animator.SetFloat("Look Y", lookDirection.y);
         _animator.SetFloat("Speed", move.magnitude);
+    }
 
+    private void Fire()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Launch();
+        }
+    }
+
+    private void Interact()
+    {
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(_rb2d.position + Vector2.up * 0.2f, lookDirection, 1.5f, LayerMask.GetMask("NPC"));
+
+            if (hit.collider != null)
+            {
+                Debug.Log("Raycast has hit the object: " + hit.collider.gameObject);
+
+                NPC character = hit.collider.GetComponent<NPC>();
+                character.DisplayDialog();
+            }
+        }
+    }
+
+    private void Invincible()
+    {
         if (isInvincible == true)
         {
             _timer = _timer - Time.deltaTime;
@@ -57,26 +104,12 @@ public class PlayerController : MonoBehaviour
                 isInvincible = false;
             }
         }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            Launch();
-        }
-
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up);
-        }
     }
 
-    void FixedUpdate()
-    {
-        Vector2 position = _rb2d.position;
-        position.x = position.x + speed * _horizontal * Time.deltaTime;
-        position.y = position.y + speed * _vertical * Time.deltaTime;
-
-        _rb2d.MovePosition(position);
-    }
+    /// <summary>
+    /// Changes current health by adding amount entered
+    /// </summary>
+    /// <param name="amount"> amount to add to current health</param>
 
     public void ChangeHealth(int amount)
     {
@@ -93,7 +126,7 @@ public class PlayerController : MonoBehaviour
         uiHealthBar.SetValue((float)currentHealth / (float)maxHealth);
     }
 
-    public void Launch()
+    private void Launch()
     {
         GameObject projectileObject = Instantiate(projectilePrefab, _rb2d.position + Vector2.up * 0.5f, Quaternion.identity);
 
